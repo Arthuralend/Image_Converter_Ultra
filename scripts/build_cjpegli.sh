@@ -15,7 +15,7 @@ cmake -S libjxl-src -B libjxl-src/build -DCMAKE_BUILD_TYPE=Release \
   -DJPEGXL_ENABLE_PLUGINS=OFF -DJPEGXL_ENABLE_VIEWERS=OFF -DJPEGXL_ENABLE_DOXYGEN=OFF \
   -DJPEGXL_ENABLE_SJPEG=OFF -DJPEGXL_ENABLE_OPENEXR=OFF -DJPEGXL_ENABLE_JNI=OFF \
   -DJPEGXL_ENABLE_SKCMS=ON -DJPEGXL_ENABLE_TRANSCODE_JPEG=ON \
-  || { echo '--- CMakeError.log ---'; tail -80 libjxl-src/build/CMakeFiles/CMakeError.log || true; exit 1; }
+  || { echo '--- cmake logs ---'; for f in libjxl-src/build/CMakeFiles/CMakeConfigureLog.yaml libjxl-src/build/CMakeFiles/CMakeError.log; do [ -f "$f" ] && grep -n -i -B2 -A12 "error" "$f" | tail -120; done; exit 1; }
 cmake --build libjxl-src/build --target cjpegli -j"$(sysctl -n hw.ncpu)"
 mkdir -p cjpegli-bin
 cp libjxl-src/build/tools/cjpegli cjpegli-bin/cjpegli
