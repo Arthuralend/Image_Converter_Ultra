@@ -75,7 +75,7 @@ enum Compressor {
         for k in [FileAttributeKey.modificationDate, .creationDate, .posixPermissions] {
             if let v = attrs[k] { keep[k] = v }
         }
-        try? fm.setAttributes(keep, ofItemAt: tmp)
+        try? fm.setAttributes(keep, ofItemAtPath: tmp.path)
 
         var trashed: NSURL?
         try fm.trashItem(at: url, resultingItemURL: &trashed)
