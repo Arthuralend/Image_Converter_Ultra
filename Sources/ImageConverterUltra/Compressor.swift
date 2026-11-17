@@ -15,6 +15,11 @@ enum ImageKind {
 
 enum Prefs {
     static let jpegKey = "jpegQuality", pngKey = "pngQuality", gifKey = "gifQuality"
+    static let bestKey = "bestQuality"
+    /// Slower, higher-fidelity encoding (default on).
+    static var best: Bool {
+        UserDefaults.standard.object(forKey: bestKey) == nil ? true : UserDefaults.standard.bool(forKey: bestKey)
+    }
     static var jpeg: Int { value(jpegKey, 90) }
     static var png: Int { value(pngKey, 80) }
     static var gif: Int { value(gifKey, 80) }
@@ -49,13 +54,15 @@ enum Compressor {
         switch kind {
         case .jpeg:
             guard let exe = Tools.path(for: "cjpegli") else { throw CompressError(message: "cjpegli (JPEGli) not found") }
-            let r = try await Tools.run(exe, [url.path, tmp.path, "-q", String(Prefs.jpeg)])
+            let base = [url.path, tmp.path, "-q", String(Prefs.jpeg)]
+            var r = try await Tools.run(exe, Prefs.best ? base + ["--chroma_subsampling=444", "-p", "2"] : base)
+            if r.status != 0 && Prefs.best { r = try await Tools.run(exe, base) } // fall back to plain settings
             guard r.status == 0 else { throw CompressError(message: "cjpegli: \(r.stderr.suffix(200))") }
             try Metadata.transplantJPEG(from: url, into: tmp)
         case .png:
             guard let exe = Tools.path(for: "pngquant") else { throw CompressError(message: "pngquant not found") }
             let q = Prefs.png
-            let r = try await Tools.run(exe, ["--quality", "0-\(q)", "--speed", "1", "--force",
+            let r = try await Tools.run(exe, ["--quality", "0-\(q)", "--speed", Prefs.best ? "1" : "4", "--force",
                                               "--output", tmp.path, "--", url.path])
             if r.status == 98 || r.status == 99 { return .skipped("No gain") }
             guard r.status == 0 else { throw CompressError(message: "pngquant: \(r.stderr.suffix(200))") }

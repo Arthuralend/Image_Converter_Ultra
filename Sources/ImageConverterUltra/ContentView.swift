@@ -5,6 +5,7 @@ struct ContentView: View {
     @AppStorage(Prefs.jpegKey) private var jpegQ = 90
     @AppStorage(Prefs.pngKey) private var pngQ = 80
     @AppStorage(Prefs.gifKey) private var gifQ = 80
+    @AppStorage(Prefs.bestKey) private var best = true
     @State private var targeted = false
 
     var body: some View {
@@ -41,6 +42,9 @@ struct ContentView: View {
                 slider("JPEG (JPEGli)", $jpegQ, 50...100)
                 slider("PNG", $pngQ, 30...100)
                 slider("GIF", $gifQ, 10...100)
+                Toggle("Максимальное качество (медленнее)", isOn: $best)
+                    .help("JPEG: цвет 4:4:4 + прогрессивный; PNG: самый точный режим pngquant")
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
