@@ -2,3 +2,5 @@
 build/
 .DS_Store
 *.xcodeproj
+cjpegli-bin/
+libjxl-src/

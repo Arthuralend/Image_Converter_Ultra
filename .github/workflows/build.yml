@@ -1,4 +1,4 @@
-name: Build macOS app
+name: Build Image Compressor Ultra
 on:
   push:
   workflow_dispatch:
@@ -12,22 +12,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install encoders
-        run: brew install jpeg-xl pngquant gifsicle dylibbundler
+        run: brew install pngquant gifsicle dylibbundler
+      - name: Cache cjpegli
+        id: cjpegli-cache
+        uses: actions/cache@v4
+        with:
+          path: cjpegli-bin
+          key: cjpegli-v0.11.1-${{ runner.os }}-${{ runner.arch }}-1
+      - name: Build cjpegli (JPEGli)
+        if: steps.cjpegli-cache.outputs.cache-hit != 'true'
+        run: ./scripts/build_cjpegli.sh
       - name: Build app
         run: ./scripts/build_app.sh
       - name: Package (zip + dmg)
         run: |
-          ditto -c -k --keepParent "build/Image Converter Ultra.app" ImageConverterUltra.zip
-          mkdir dmg && cp -R "build/Image Converter Ultra.app" dmg/ && ln -s /Applications dmg/Applications
-          hdiutil create -volname "Image Converter Ultra" -srcfolder dmg -ov -format UDZO ImageConverterUltra.dmg
+          ditto -c -k --keepParent "build/Image Compressor Ultra.app" ImageCompressorUltra.zip
+          mkdir dmg && cp -R "build/Image Compressor Ultra.app" dmg/ && ln -s /Applications dmg/Applications
+          hdiutil create -volname "Image Compressor Ultra" -srcfolder dmg -ov -format UDZO ImageCompressorUltra.dmg
       - uses: actions/upload-artifact@v4
         with:
-          name: ImageConverterUltra
+          name: ImageCompressorUltra
           path: |
-            ImageConverterUltra.dmg
-            ImageConverterUltra.zip
+            ImageCompressorUltra.dmg
+            ImageCompressorUltra.zip
       - name: Attach to release
         if: github.event_name == 'release'
-        run: gh release upload "${{ github.event.release.tag_name }}" ImageConverterUltra.dmg ImageConverterUltra.zip --clobber
+        run: gh release upload "${{ github.event.release.tag_name }}" ImageCompressorUltra.dmg ImageCompressorUltra.zip --clobber
         env:
           GH_TOKEN: ${{ github.token }}

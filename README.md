@@ -1,4 +1,4 @@
-# Image Converter Ultra
+# Image Compressor Ultra
 
 macOS (13+) drag & drop image optimizer in Swift, in the spirit of ImageOptim.
 
@@ -19,9 +19,10 @@ Resolution is never changed.
 ## Build
 
 ```bash
-brew install jpeg-xl pngquant gifsicle dylibbundler
+./scripts/build_cjpegli.sh   # builds JPEGli from libjxl sources
+brew install pngquant gifsicle dylibbundler
 ./scripts/build_app.sh
-open "build/Image Converter Ultra.app"
+open "build/Image Compressor Ultra.app"
 ```
 The script bundles the encoders into the app. For development, `swift run` also works
 (encoders are then taken from Homebrew).

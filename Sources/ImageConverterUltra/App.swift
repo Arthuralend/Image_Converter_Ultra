@@ -16,7 +16,7 @@ struct ImageConverterUltraApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     var body: some Scene {
-        WindowGroup("Image Converter Ultra") {
+        WindowGroup("Image Compressor Ultra") {
             ContentView()
                 .frame(minWidth: 460, minHeight: 520)
         }

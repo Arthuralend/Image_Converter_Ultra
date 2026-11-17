@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Builds "Image Converter Ultra.app" and bundles the encoders (cjpegli, pngquant, gifsicle).
-# Requires: Xcode command line tools, Homebrew.   brew install jpeg-xl pngquant gifsicle dylibbundler
+# Builds "Image Compressor Ultra.app" and bundles the encoders (cjpegli, pngquant, gifsicle).
+# Requires: Xcode command line tools, Homebrew.   scripts/build_cjpegli.sh  &&  brew install pngquant gifsicle dylibbundler
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-APP="build/Image Converter Ultra.app"
+APP="build/Image Compressor Ultra.app"
 ARCHS="--arch arm64 --arch x86_64"
 swift build -c release $ARCHS || { ARCHS=""; swift build -c release; }
 BIN="$(swift build -c release $ARCHS --show-bin-path)/ImageConverterUltra"
@@ -14,8 +14,8 @@ cp "$BIN" "$APP/Contents/MacOS/ImageConverterUltra"
 
 # --- bundle encoders ---
 for t in cjpegli pngquant gifsicle; do
-  src="$(command -v "$t" || true)"
-  if [ -z "$src" ]; then echo "warning: $t not found (brew install jpeg-xl pngquant gifsicle)"; continue; fi
+  if [ -x "cjpegli-bin/$t" ]; then src="cjpegli-bin/$t"; else src="$(command -v "$t" || true)"; fi
+  if [ -z "$src" ]; then echo "error: $t not found (cjpegli: run scripts/build_cjpegli.sh)"; exit 1; fi
   cp "$src" "$APP/Contents/Resources/bin/$t"
   if command -v dylibbundler >/dev/null; then
     dylibbundler -of -b -x "$APP/Contents/Resources/bin/$t" \
@@ -35,8 +35,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-  <key>CFBundleName</key><string>Image Converter Ultra</string>
-  <key>CFBundleDisplayName</key><string>Image Converter Ultra</string>
+  <key>CFBundleName</key><string>Image Compressor Ultra</string>
+  <key>CFBundleDisplayName</key><string>Image Compressor Ultra</string>
   <key>CFBundleIdentifier</key><string>com.arthuralend.ImageConverterUltra</string>
   <key>CFBundleExecutable</key><string>ImageConverterUltra</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
