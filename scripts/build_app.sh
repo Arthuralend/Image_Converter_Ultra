@@ -5,8 +5,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 APP="build/Image Converter Ultra.app"
-swift build -c release --arch arm64 --arch x86_64 2>/dev/null || swift build -c release
-BIN="$(swift build -c release --show-bin-path)/ImageConverterUltra"
+ARCHS="--arch arm64 --arch x86_64"
+swift build -c release $ARCHS || { ARCHS=""; swift build -c release; }
+BIN="$(swift build -c release $ARCHS --show-bin-path)/ImageConverterUltra"
 
 rm -rf "$APP"; mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources/bin" "$APP/Contents/Frameworks"
 cp "$BIN" "$APP/Contents/MacOS/ImageConverterUltra"
