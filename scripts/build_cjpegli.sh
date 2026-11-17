@@ -9,12 +9,13 @@ rm -rf libjxl-src
 git clone --depth 1 --branch "$VER" --recursive --shallow-submodules https://github.com/libjxl/libjxl.git libjxl-src
 cmake -S libjxl-src -B libjxl-src/build -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-  -DCMAKE_THREAD_LIBS_INIT= -DCMAKE_HAVE_THREADS_LIBRARY=1 -DCMAKE_USE_PTHREADS_INIT=1 -DCMAKE_USE_WIN32_THREADS_INIT=0 -DTHREADS_PREFER_PTHREAD_FLAG=OFF \
+  -DCMAKE_MODULE_PATH="$PWD/scripts/cmake" \
   -DBUILD_TESTING=OFF -DJPEGXL_STATIC=ON -DJPEGXL_ENABLE_TOOLS=ON -DJPEGXL_ENABLE_JPEGLI=ON \
   -DJPEGXL_ENABLE_BENCHMARK=OFF -DJPEGXL_ENABLE_EXAMPLES=OFF -DJPEGXL_ENABLE_MANPAGES=OFF \
   -DJPEGXL_ENABLE_PLUGINS=OFF -DJPEGXL_ENABLE_VIEWERS=OFF -DJPEGXL_ENABLE_DOXYGEN=OFF \
   -DJPEGXL_ENABLE_SJPEG=OFF -DJPEGXL_ENABLE_OPENEXR=OFF -DJPEGXL_ENABLE_JNI=OFF \
-  -DJPEGXL_ENABLE_SKCMS=ON -DJPEGXL_ENABLE_TRANSCODE_JPEG=ON
+  -DJPEGXL_ENABLE_SKCMS=ON -DJPEGXL_ENABLE_TRANSCODE_JPEG=ON \
+  || { echo '--- CMakeError.log ---'; tail -80 libjxl-src/build/CMakeFiles/CMakeError.log || true; exit 1; }
 cmake --build libjxl-src/build --target cjpegli -j"$(sysctl -n hw.ncpu)"
 mkdir -p cjpegli-bin
 cp libjxl-src/build/tools/cjpegli cjpegli-bin/cjpegli
